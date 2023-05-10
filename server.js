@@ -68,19 +68,20 @@ const company_questions = [
 
 
 function init() {
-    inquirer.prompt(company_questions)
+    const promptUser = () => {
 
+        inquirer
+        .prompt(company_questions)
         .then((answers) => {
             // log the JSON object
             console.log("user choice received");
             console.log(JSON.stringify(answers, null, ' '));
             // ask more questions
-            switch (answers.action) {
+                switch (answers.action) {
                 case "View All Employees":
-                    // code block
-                    db.query('SELECT * FROM employee;', function (err, results) {
-                        console.log(results);
-                    });
+                    displayEmp();
+                    promptUser();
+
                     break;
                 case "Add Employee":
                     addEmployee();
@@ -89,66 +90,83 @@ function init() {
                     // What is the employee’s rolle? Customer Service
                     // Who is the employee’s manager? Ashleigh Rodes
                     // Added Sam Kash to the database
-
-                    // code block
                     break;
                 case "Update Employee Role":
-                    // code block
+                    promptUser();
+
                     break;
                 case "View All Roles":
-                    // code block
                     db.query('SELECT * FROM roles;', function (err, results) {
                         console.table(results);
                     });
+                    promptUser();
+
                     break;
                 case "Add Role":
-                    // code block
+                    promptUser();
+
                     break;
                 case "View All Departments":
-                    // code block
                     db.query('SELECT * FROM department;', function (err, results) {
                         console.table(results);
                     });
+                    promptUser();
+
                     break;
                 case "Add Department":
-                    // code block
+                    promptUser();
+
                     break;
                 case "Quit":
-                    // code block
                     break;
                 default:
-                // code block
-            }
+                    promptUser();
+        }
 
         })
         .catch(() => {
             console.log("Inquirer prompt failed")
         })
+    }
+    promptUser();
 };
 
-function addEmployee() {
-    db.query (`SELECT first_name, last_name FROM employee;`, function(err, results) {
-        console.log(results);
-        const emp_list = results;
-        console.log (emp_list);
-    
+
+function displayEmp() {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, 
+                 roles.title, roles.salary, department.dept_name
+                 FROM employee
+                 JOIN roles ON employee.role_id = roles.id
+                 JOIN department ON roles.department_id = department.id`;
+    db.query(sql, function (err, results) {
+        console.table(results);
     });
-    
+}
+
+
+function addEmployee() {
+    db.query(`SELECT first_name, last_name FROM employee;`, function (err, results) {
+        //console.log(results);
+        const emp_list = results;
+        console.table(emp_list);
+
+    });
+
     const emp_questions = [
         {
             type: "input",
             message: "What is the employee's first name?",
-            name: "first_name",
+            name: "f_name",
         },
         {
             type: "input",
             message: "What is the employee's last name?",
-            name: "last_name",
+            name: "l_name",
         },
         {
             type: "list",
             message: "What is the employee's role?",
-            name: "role",
+            name: "role_title",
             choices: [
                 "Sales Lead",
                 "Sales Person",
@@ -164,8 +182,8 @@ function addEmployee() {
         {
             type: "input",
             message: "Who is the employee's manager?",
-            name: "manager",
-            choices: [emp_list]
+            name: "boss",
+            //choices: [emp_list]
         },
     ];
 
@@ -196,17 +214,3 @@ function addEmployee() {
 }
 
 init();
-
-
-// const sql = `INSERT INTO movies (movie_name) VALUES (?)`;
-// const params = [body.movie_name];
-
-// db.query(sql, params, (err, result) => {
-//     if (err) {
-//         res.status(400).json({ error: err.message });
-//         return;
-//     }
-//     res.json({
-//         message: 'success',
-//         data: body
-//     });

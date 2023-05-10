@@ -149,8 +149,15 @@ function addEmployee() {
         //console.log(results);
         const emp_list = results;
         console.table(emp_list);
-
-    });
+        console.log (emp_list);
+        //emp_list_to_display = 
+          
+          const formattedResults = results.map(row => `${row.first_name} ${row.last_name}`);
+          
+          console.log(formattedResults);
+          // Output: ["John Doe", "Mike Chan", "Ashley Rodriguez", "Kevin Tupik", "Kunal Singh", "Malia Brown", "Sarah Lourd", "Tom Allen"]
+          
+   
 
     const emp_questions = [
         {
@@ -180,10 +187,10 @@ function addEmployee() {
             ]
         },
         {
-            type: "input",
+            type: "list",
             message: "Who is the employee's manager?",
             name: "boss",
-            //choices: [emp_list]
+            choices: formattedResults
         },
     ];
 
@@ -211,6 +218,7 @@ function addEmployee() {
                 db.query("SELECT * FROM employee");
             })
         });
+    });
 }
 
 init();

@@ -78,7 +78,7 @@ function init() {
             switch (answers.action) {
                 case "View All Employees":
                     // code block
-                    db.query('SELECT * FROM roles;', function (err, results) {
+                    db.query('SELECT * FROM employee;', function (err, results) {
                         console.log(results);
                     });
                     break;
@@ -97,12 +97,18 @@ function init() {
                     break;
                 case "View All Roles":
                     // code block
+                    db.query('SELECT * FROM roles;', function (err, results) {
+                        console.table(results);
+                    });
                     break;
                 case "Add Role":
                     // code block
                     break;
                 case "View All Departments":
                     // code block
+                    db.query('SELECT * FROM department;', function (err, results) {
+                        console.table(results);
+                    });
                     break;
                 case "Add Department":
                     // code block
@@ -121,6 +127,13 @@ function init() {
 };
 
 function addEmployee() {
+    db.query (`SELECT first_name, last_name FROM employee;`, function(err, results) {
+        console.log(results);
+        const emp_list = results;
+        console.log (emp_list);
+    
+    });
+    
     const emp_questions = [
         {
             type: "input",
@@ -137,14 +150,14 @@ function addEmployee() {
             message: "What is the employee's role?",
             name: "role",
             choices: [
-                "1 = Sales Lead",
-                "2 = Sales Person",
-                "3 = Lead Engineer",
-                "4 = Software Engineer",
-                "5 = Account Manager",
-                "6 = Accountant",
-                "7 = Legal Team Lead",
-                "8 = Lawyer",
+                "Sales Lead",
+                "Sales Person",
+                "Lead Engineer",
+                "Software Engineer",
+                "Account Manager",
+                "Accountant",
+                "Legal Team Lead",
+                "Lawyer",
                 "Use Arrow Keys to select"
             ]
         },
@@ -152,20 +165,48 @@ function addEmployee() {
             type: "input",
             message: "Who is the employee's manager?",
             name: "manager",
+            choices: [emp_list]
         },
     ];
 
     inquirer.prompt(emp_questions)
 
-    .then((answers) => {
-        // log the JSON object
-        const { first_name, last_name, role, manager } = answers;
-        console.log(`Added ${first_name} ${last_name} to the database as ${role} with manager ${manager}`);
-        //INSERT INTO employee VALUES (first_name, last_name, #, #);
-    // Added Sam Kash to the database
-    //( "John", "Doe", 1, 4), -- Sales Lead
+        .then((answers) => {
+            // log the JSON object
+            const { f_name, l_name, role_title, boss } = answers;
+            // Check if manager is in database
 
-    })
-};
+
+            //INSERT INTO employee VALUES (first_name, last_name, #, #);
+            // Added Sam Kash to the database
+            //( "John", "Doe", 1, 4), -- Sales Lead
+            const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+            const params = [f_name, l_name, role_title, boss];
+            //db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (f_name, l_name, role_title, supervisor);`);
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log("Not added to db");
+                    return;
+                }
+                console.log(`Added ${f_name} ${l_name} to the database as ${role_title} with manager ${boss}`);
+                console.table(result);
+                db.query("SELECT * FROM employee");
+            })
+        });
+}
 
 init();
+
+
+// const sql = `INSERT INTO movies (movie_name) VALUES (?)`;
+// const params = [body.movie_name];
+
+// db.query(sql, params, (err, result) => {
+//     if (err) {
+//         res.status(400).json({ error: err.message });
+//         return;
+//     }
+//     res.json({
+//         message: 'success',
+//         data: body
+//     });

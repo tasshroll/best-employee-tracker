@@ -20,22 +20,10 @@ VALUES
 
 SELECT * FROM roles;
 
--- CREATE TABLE employee (
---     id  NOT NULL AUTO_INCREMENT INT PRIMARY KEY,
---     first_name VARCHAR(30) NOT NULL,
---     last_name VARCHAR(30) NOT NULL,
--- 	role_id INT NOT NULL,
--- 	manager_id INT NOT NULL,
---     FOREIGN KEY (role_id))
---     REFERENCES role(id)
---     FOREIGN KEY (manager_id)
---     REFERENCES employee (id)
---  ???? Manager ID ????
-
-Insert employees without specifying manager_id
+-- Insert employees without specifying manager_id
 INSERT INTO employee (first_name, last_name, role_id)
 VALUES 
-    ()"John", "Doe", 1), -- Sales Lead
+    ("John", "Doe", 1), -- Sales Lead
     ("Mike", "Chan", 2), -- Salesperson
     ("Ashley", "Rodriguez", 3), -- Lead Engineer
     ("Kevin", "Tupik", 4), -- Software Engineer
@@ -45,6 +33,7 @@ VALUES
     ("Tom", "Allen", 8); -- Lawyer
 
 -- Update manager_id for each employee
+
 -- UPDATE employee SET manager_id = 4 WHERE id IN (1,2,3,5,6,7,8);
 -- UPDATE employee SET manager_id = NULL WHERE id = 4;
 
@@ -64,3 +53,14 @@ VALUES
 
 SELECT * FROM employee;
 
+
+-- SELECT * FROM employee JOIN roles ON employee.role_id = roles.id;
+-- SELECT * FROM roles JOIN department ON roles.department_id = department.id;
+SELECT employee.id, employee.first_name, employee.last_name, 
+       roles.title, roles.salary, department.dept_name
+FROM employee
+JOIN roles ON employee.role_id = roles.id
+JOIN department ON roles.department_id = department.id;
+
+
+-- JOIN department_id

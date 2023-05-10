@@ -28,5 +28,3 @@ CREATE TABLE employee (
     FOREIGN KEY (manager_id) REFERENCES employee(id)
     ON DELETE SET NULL
 );
-
-    --ALTER TABLE employee MODIFY COLUMN manager_id INT NULL;

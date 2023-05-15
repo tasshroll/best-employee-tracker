@@ -19,6 +19,9 @@ View All Employees
 ## Walk Through Video
 Walkthrough video that demonstrates functionality and all acceptance criteria.
 
+[Click here for video demonstration](https://youtu.be/vosVMQ3ceyI)
+
+
 ## Table of Contents
 
 [Installation](#installation)

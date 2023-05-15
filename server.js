@@ -16,7 +16,7 @@ const db = mysql.createConnection(
     console.log(`Connected to the company_db ddatabase.`)
 );
 
-
+// Display company foles
 function displayRoles() {
     db.query('SELECT * FROM roles;', function (err, results) {
         console.table(results);
@@ -24,6 +24,7 @@ function displayRoles() {
     });
 }
 
+// Display company departments
 function displayDepts() {
     db.query('SELECT * FROM department;', function (err, results) {
         if (err) {
@@ -34,6 +35,7 @@ function displayDepts() {
     });
 }
 
+// Retreive all employee data from the three tables
 function getAllEmployeeData(results) {
     // console.log("inside getAllEmployeeData");
     const sql = `SELECT employee.id, CONCAT(employee.first_name,' ', employee.last_name) as Employee, 
@@ -60,16 +62,14 @@ function getAllEmployeeData(results) {
     });
 }
 
-
-
+// Display employees
 async function displayEmp() {
     const results = await getAllEmployeeData();
     //console.log("after calling function getAllEmployeeData, data is", results);
     promptUser();
 }
 
-
-
+// Update employee role
 async function updateRole() {
     // get list of employees
     const results = await getAllEmployeeData();
@@ -83,7 +83,7 @@ async function updateRole() {
         value: row.id
     }));
     let roleList; // declare roleList outside of the callback function
-
+    // Get list of existing roles
     db.query(`select * from roles;`, (err, result) => {
         if (err) {
             console.log("Cant access db", err);
@@ -105,6 +105,7 @@ async function updateRole() {
     const empID = answers.empToUpdate;
     console.log("employee to udate is ", empID);
 
+    // Display of exisitng roles for user to choose from
     const answ = await inquirer.prompt({
         type: "list",
         message: "Which role do you want them to have?",
@@ -115,7 +116,7 @@ async function updateRole() {
     const roleID = answ.newRole;
     const sql = `UPDATE employee SET role_id = ? WHERE id = ?;`;
     const params = [roleID, empID];
-
+    // upddate db with role ID for selected employee
     db.query(sql, params, (err, result) => {
         if (err) {
             console.log("Role not updated", err);
@@ -124,13 +125,9 @@ async function updateRole() {
         console.log(`Success. Updated role id ${roleID} for employee id of ${empID}`);
         promptUser();
     });
-
-
 }
 
-
-
-
+// Update an employee's manager
 async function updateEmpManager() {
 
     // get list of employees
@@ -201,7 +198,7 @@ async function updateEmpManager() {
 } //END updateEmpManager
 
 
-
+// Add a new employee
 function addEmployee() {
     // Query DB for a list of existing employees
     // These will be manager choices for new employee being added
@@ -284,6 +281,7 @@ function addEmployee() {
     });
 }
 
+// Add a new department
 function addNewDept() {
 
     inquirer.prompt({
@@ -307,7 +305,7 @@ function addNewDept() {
 } // end of addNewDept
 
 
-
+// Add a new role
 function createNewRole() {
     // The callback function will receive an error object if the query failed, or the results of the query if it succeeded.
     db.query('select * from department', (err, res) => {
@@ -359,6 +357,7 @@ function createNewRole() {
     }) // end of db.query
 }  //END of createNewRole
 
+// Main prompt function
 const promptUser = () => {
     const main_questions = [
         {
@@ -418,6 +417,7 @@ const promptUser = () => {
 } // END promptUser()
 
 
+// prompt user with selections
 function init() {
     promptUser();
 };

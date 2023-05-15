@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql');
 require('console.table')
 
+
 // Connect to database
 const db = mysql.createConnection(
     {
@@ -68,6 +69,68 @@ async function displayEmp() {
 }
 
 
+
+async function updateRole() {
+    // get list of employees
+    const results = await getAllEmployeeData();
+    const empList = results.map(row => ({
+        //Parse data from TABLE
+        name: row.Employee,
+        title: row.title,
+        dept_name: row.dept_name,
+        mgr: row.Manager,
+        mgr_id: row.manager_id,
+        value: row.id
+    }));
+    let roleList; // declare roleList outside of the callback function
+
+    db.query(`select * from roles;`, (err, result) => {
+        if (err) {
+            console.log("Cant access db", err);
+            return;
+        }
+        roleList = result.map(row => ({
+            name: row.title,
+            value: row.id
+        }));
+    });
+
+    const answers = await inquirer.prompt({
+        type: "list",
+        message: "Which employee do you want to update",
+        name: "empToUpdate",
+        choices: empList,
+    });
+
+    const empID = answers.empToUpdate;
+    console.log("employee to udate is ", empID);
+
+    const answ = await inquirer.prompt({
+        type: "list",
+        message: "Which role do you want them to have?",
+        name: "newRole",
+        choices: roleList
+        //choices: roleList.map(role => role.name)
+    });
+    const roleID = answ.newRole;
+    const sql = `UPDATE employee SET role_id = ? WHERE id = ?;`;
+    const params = [roleID, empID];
+
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.log("Role not updated", err);
+            return;
+        }
+        console.log(`Success. Updated role id ${roleID} for employee id of ${empID}`);
+        promptUser();
+    });
+
+
+}
+
+
+
+
 async function updateEmpManager() {
 
     // get list of employees
@@ -118,6 +181,7 @@ async function updateEmpManager() {
 
             //console.log("Emp name is ", empToUpdate.name, "new mgr for this emp is ", mgrChosen.name );
             // Update the employee database with the new manager id
+
             db.query(sql, params, (err, result) => {
                 if (err) {
                     console.log("Not added to db", err);
@@ -158,14 +222,12 @@ function addEmployee() {
             l_name: '',
             id: null
         });
-        console.log(managerChoices);
+        //console.log(managerChoices);
 
 
         // Query DB for a list of all the exisiting roles in the company. 
         // This will be the list to choose from for the new employee.
         db.query(`SELECT * from ROLES`, (err, results) => {
-            console.table(results);
-
             const roleList = results.map(row => ({
                 // Parse data from TABLE ROLE
                 name: row.title,
@@ -231,7 +293,6 @@ function addNewDept() {
     }).then((answer) => {
         // After user enters role, salary, and chooses a department, 
         // insert role, salary, and department id into roles table
-        console.log(answer);
         const params = [answer.departmentName];
         const sql = "INSERT INTO department (dept_name) VALUES (?)";
         db.query(sql, params, function (err, results) {
@@ -239,7 +300,7 @@ function addNewDept() {
                 console.error("Error inserting data into database:", err);
                 return;
             }
-            console.log("Data inserted successfully:");
+            console.log("New Department addded successfully:");
             promptUser(); // Ask user for next action
         });
     }); // end of inquirer
@@ -329,6 +390,7 @@ const promptUser = () => {
                     addEmployee();
                     break;
                 case "Update Employee Role":
+                    updateRole();
                     break;
                 case "View All Roles":
                     displayRoles();
